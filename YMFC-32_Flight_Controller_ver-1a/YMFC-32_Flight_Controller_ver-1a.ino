@@ -40,6 +40,7 @@ float pid_i_gain_pitch = pid_i_gain_roll;
 float pid_d_gain_pitch = pid_d_gain_roll;  
 int pid_max_pitch = pid_max_roll;                //飽和抑制
 int pid_max_output_pitch = pid_max_output_roll;        //飽和抑制
+float pid_accoutput_roll,pid_accoutput_pitch;
 
 float pid_p_gain_yaw = 1.3;               //2.0
 float pid_i_gain_yaw = 0.02;              
@@ -83,7 +84,7 @@ int32_t channel_5_start, channel_5;
 int32_t channel_6_start, channel_6;
 int32_t acc_total_vector;
 int32_t gyro_roll_cal, gyro_pitch_cal, gyro_yaw_cal;
-
+float pid_accerror_temp_pitch,pid_i_accmem_roll,pid_last_accroll_d_error, pid_i_accmem_pitch,pid_last_accpitch_d_error,pid_accerror_temp_roll;
 uint32_t loop_timer, error_timer;
 float roll_level_adjust, pitch_level_adjust;
 float pid_error_temp,gyro_roll_last;
@@ -394,7 +395,14 @@ void loop() {
     else if (channel_4 < 1492)pid_yaw_setpoint = (channel_4 - 1492) / 3.0;        // 如果 channel_4 輸入小於 1492，設置為與 1492 之間的差值除以 3(是負的)
   }
 
-  calculate_pid();                                               // 計算 PID 輸出                 
+  calculate_pid();                                               // 計算 PID 輸出   
+
+
+if(pid_roll_setpoint == 0&&pid_pitch_setpoint==0){
+  acc_pid();
+}
+
+
 
 // 需要電池電壓來進行補償。
 // 使用補償濾波器來減少噪聲。

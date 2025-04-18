@@ -16,6 +16,9 @@ float AltitudeBarometer, AltitudeBarometerStartUp;
 float AccZInertial;
 float PrevErrorVelocityVertical, PrevItermVelocityVertical;
 int RateCalibrationNumber;
+float pid_max_accoutput_roll=10;
+float pid_max_accoutput_pitch=10;
+float pid_p_accgain=0.8;
 float accZ_offset = 0;
 float pid_p_gain_high = 5;   // PID 參數（需根據實際調整）
 float pid_i_gain_high = 0;//0.0015
@@ -296,7 +299,7 @@ void loop() {
    angle_pitch=KalmanAnglePitch;
    angle_roll=KalmanAngleRoll;
 
- // Serial.print(" KalmanAngleRoll: ");
+  //Serial.print(" KalmanAngleRoll: ");
   //Serial.println( KalmanAngleRoll);
   //Serial.print("  KalmanAnglePitch: ");
   //Serial.println( KalmanAnglePitch);
@@ -367,7 +370,13 @@ void loop() {
   
 
 
-  
+
+
+pid_accoutput_pitch=0;
+pid_accoutput_roll=0;
+
+
+
   //In the case of deviding by 3 the max roll rate is aprox 164 degrees per second ( (500-8)/3 = 164d/s ).
   pid_roll_setpoint = 0;//如果油門剛好在中間(1500微秒輸出)則誤差等於0
   //We need a little dead band of 16us for better results.
@@ -397,9 +406,10 @@ void loop() {
 
   calculate_pid();                                               // 計算 PID 輸出   
 
-
-if(pid_roll_setpoint == 0&&pid_pitch_setpoint==0){
+    
+if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
   acc_pid();
+  
 }
 
 
@@ -429,10 +439,10 @@ if(pid_roll_setpoint == 0&&pid_pitch_setpoint==0){
 
     
 
-    esc_1 = 1.024*(throttle  + pid_output_pitch/1.7 - pid_output_roll/1.7 + pid_output_yaw);        // 1.5 18esc 1 (front-right - CCW).      這是ESC輸出的計算通用標準型式 =總-前後(往前是正往後是負)+橫滾(往右負往左正)-偏航(右旋負左旋正)
-    esc_2 = 1.024*(throttle  - pid_output_pitch/1.7 - pid_output_roll/1.7 - pid_output_yaw);        // 1.5 18esc 2 (rear-right - CW).                                    =總+前後(往前是正往後是負)+橫滾(往右負往左正)+偏航(右旋正左旋負)
-    esc_3 = 1.024*(throttle  - pid_output_pitch/1.7 + pid_output_roll/1.7 + pid_output_yaw);        // 1.5 18esc 3 (rear-left - CCW).                                    =總+前後(往前是正往後是負)-橫滾(往右負往左正)-偏航(右旋正左旋負)
-    esc_4 = 1.024*(throttle  + pid_output_pitch/1.7 + pid_output_roll/1.7 - pid_output_yaw);        // 1.5 18esc 4 (front-left - CW).                                    =總-前後(往前是正往後是負)-橫滾(往右負往左正)+偏航(右旋正左旋負)
+    esc_1 = 1.024*(throttle  + pid_output_pitch/1.7 - pid_output_roll/1.7 + pid_output_yaw-pid_accoutput_roll+pid_accoutput_pitch);        // 1.5 18esc 1 (front-right - CCW).      這是ESC輸出的計算通用標準型式 =總-前後(往前是正往後是負)+橫滾(往右負往左正)-偏航(右旋負左旋正)
+    esc_2 = 1.024*(throttle  - pid_output_pitch/1.7 - pid_output_roll/1.7 - pid_output_yaw-pid_accoutput_roll-pid_accoutput_pitch);        // 1.5 18esc 2 (rear-right - CW).                                    =總+前後(往前是正往後是負)+橫滾(往右負往左正)+偏航(右旋正左旋負)
+    esc_3 = 1.024*(throttle  - pid_output_pitch/1.7 + pid_output_roll/1.7 + pid_output_yaw+pid_accoutput_roll-pid_accoutput_pitch);        // 1.5 18esc 3 (rear-left - CCW).                                    =總+前後(往前是正往後是負)-橫滾(往右負往左正)-偏航(右旋正左旋負)
+    esc_4 = 1.024*(throttle  + pid_output_pitch/1.7 + pid_output_roll/1.7 - pid_output_yaw+pid_accoutput_roll+pid_accoutput_pitch);        // 1.5 18esc 4 (front-left - CW).                                    =總-前後(往前是正往後是負)-橫滾(往右負往左正)+偏航(右旋正左旋負)
     
 
     if (esc_1 < 1120) esc_1 = 1120;                                               //保持馬達怠速1100

@@ -5,9 +5,9 @@ void acc_pid(void){
   if(pid_i_accmem_roll > pid_max_roll)pid_i_accmem_roll = pid_max_roll;    //飽和抑制                                  P=P參數*誤差
   else if(pid_i_accmem_roll < -pid_max_roll )pid_i_accmem_roll = -pid_max_roll;//飽和抑制                         I=I+(I參數)*誤差
                                                                                             // D=D參數*(誤差-上一個誤差)
-  pid_accoutput_roll = pid_p_gain_roll * pid_accerror_temp_roll;// + pid_i_accmem_roll + pid_d_gain_roll * (pid_accerror_temp_roll - pid_last_accroll_d_error);
-  if(pid_accoutput_roll > pid_max_output_roll)pid_accoutput_roll = pid_max_output_roll;  //飽和抑制
-  else if(pid_accoutput_roll < -pid_max_output_roll )pid_accoutput_roll = -pid_max_output_roll ;  //飽和抑制
+  pid_accoutput_roll = pid_p_accgain * pid_accerror_temp_roll ;//+ pid_i_accmem_roll + pid_d_gain_roll * (pid_accerror_temp_roll - pid_last_accroll_d_error);
+  if(pid_accoutput_roll > pid_max_accoutput_roll)pid_accoutput_roll = pid_max_accoutput_roll;  //飽和抑制
+  else if(pid_accoutput_roll < -pid_max_accoutput_roll )pid_accoutput_roll = -pid_max_accoutput_roll ;  //飽和抑制
    pid_last_accroll_d_error = pid_accerror_temp_roll;
 
 
@@ -17,9 +17,12 @@ void acc_pid(void){
   if(pid_i_accmem_pitch > pid_max_pitch)pid_i_accmem_pitch = pid_max_pitch;    //飽和抑制                                  P=P參數*誤差
   else if(pid_i_accmem_pitch < -pid_max_pitch )pid_i_accmem_pitch = -pid_max_pitch;//飽和抑制                         I=I+(I參數)*誤差
                                                                                             // D=D參數*(誤差-上一個誤差)
-  pid_accoutput_pitch = pid_p_gain_pitch * pid_accerror_temp_pitch;// + pid_i_accmem_pitch + pid_d_gain_pitch * (pid_accerror_temp_pitch - pid_last_accpitch_d_error);
-  if(pid_accoutput_pitch > pid_max_output_pitch)pid_accoutput_pitch = pid_max_output_pitch;  //飽和抑制
-  else if(pid_accoutput_pitch < -pid_max_output_pitch )pid_accoutput_pitch = -pid_max_output_pitch ;  //飽和抑制
+  pid_accoutput_pitch = pid_p_accgain * pid_accerror_temp_pitch; //+ pid_i_accmem_pitch + pid_d_gain_pitch * (pid_accerror_temp_pitch - pid_last_accpitch_d_error);
+  if(pid_accoutput_pitch > pid_max_accoutput_pitch)pid_accoutput_pitch = pid_max_accoutput_pitch;  //飽和抑制
+  else if(pid_accoutput_pitch < -pid_max_accoutput_pitch )pid_accoutput_pitch = -pid_max_accoutput_pitch ;  //飽和抑制
    pid_last_accpitch_d_error = pid_accerror_temp_pitch;
-
+     //Serial.print("pid_accoutput_roll: ");
+     //Serial.println(pid_accoutput_roll);
+     // Serial.print("pid_accoutput_pitch: ");
+      //Serial.println(pid_accoutput_pitch);
 }

@@ -319,10 +319,10 @@ void loop() {
      }
 
 
-  //pitch_level_adjust = KalmanAnglePitch* 13.6;                                           // 計算俯仰角修正(可以自己改係數)15
-  //roll_level_adjust = KalmanAngleRoll * 13.6;                                             // 計算滾轉角修正(可以自己改係數)15
-  pitch_level_adjust = angle_pitch* 13.6;                                           
-  roll_level_adjust = angle_roll *13.6 ;                          
+  //pitch_level_adjust = KalmanAnglePitch* 15;                                           // 計算俯仰角修正(可以自己改係數)15
+  //roll_level_adjust = KalmanAngleRoll * 15;                                             // 計算滾轉角修正(可以自己改係數)15
+  pitch_level_adjust = angle_pitch* 15;                                           
+  roll_level_adjust = angle_roll *15 ;                          
     //Serial.print("angle_pitch: ");
     //Serial.println(angle_pitch);
     //delay(20);
@@ -384,7 +384,7 @@ pid_accoutput_roll=0;
   else if (channel_1 < 1492)pid_roll_setpoint = channel_1 - 1492;            // 如果 channel_2 輸入小於 1492，設置為輸入與 1492 之間的差值 (是負的)
 
   pid_roll_setpoint -= roll_level_adjust;                                      // 從標準化的遙控俯仰輸入值中減去角度修正值
-  pid_roll_setpoint /= 3.2;                                                       // 將 PID 俯仰控制器的目標值除以 3 以轉換為度數 3.0
+  pid_roll_setpoint /= 3.0;                                                       // 將 PID 俯仰控制器的目標值除以 3 以轉換為度數 3.0
 
 
   // PID 控制器的目標值 (每秒度數) 是由遙控器的偏航 (yaw) 輸入決定的。
@@ -395,7 +395,7 @@ pid_accoutput_roll=0;
   else if (channel_2 < 1492)pid_pitch_setpoint = channel_2 - 1492;
 
   pid_pitch_setpoint -= pitch_level_adjust;                                       
-  pid_pitch_setpoint /= 3.2;      //3.0                                                 
+  pid_pitch_setpoint /= 3.0;      //3.0                                                 
 
   pid_yaw_setpoint = 0;
   

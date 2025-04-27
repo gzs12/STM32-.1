@@ -15,13 +15,19 @@ void calibrate_gyro(void) {
       gyro_signalen();                                              
       gyro_roll_cal += gyro_roll;                                                    //把每次的讀取陀螺儀值加在一起(共2000次)
       gyro_pitch_cal += gyro_pitch;                                                   
-      gyro_yaw_cal += gyro_yaw;                                   
+      gyro_yaw_cal += gyro_yaw;                                
+      gyro_roll_acccal += acc_xLSB;     
+      gyro_pitch_acccal += acc_yLSB;
       delay(4);                                                                       //模擬每250HZ的頻率 
     }
     digitalWrite(PB4, HIGH);                                                                     //表示校準完成
     gyro_roll_cal /= 2000;                                                           //除以2000為平均值
     gyro_pitch_cal /= 2000;                                                          
-    gyro_yaw_cal /= 2000;                                                             
+    gyro_yaw_cal /= 2000;                       
+    gyro_roll_acccal /=2000;
+    gyro_pitch_acccal /=2000;       
+    manual_acc_roll_cal_value=gyro_roll_acccal;
+    manual_acc_pitch_cal_value=gyro_pitch_acccal;
     manual_gyro_pitch_cal_value = gyro_pitch_cal;                                     // 將 pitch 校準值設為計算的平均值
     manual_gyro_roll_cal_value = gyro_roll_cal;                                       // 將 roll 校準值設為計算的平均值
     manual_gyro_yaw_cal_value = gyro_yaw_cal;                                         // 將 yaw 校準值設為計算的平均值

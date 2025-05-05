@@ -233,21 +233,21 @@ void loop() {
 
 
     //1:MPU6050 設定 ±500°/s 角速度 deg/s = 原始數據 / 65.5  2: 每 1 LSB = (1 / 65.5)deg/s(mpu6050輸出的是(x)lsb) 3:每次迴圈間隔 dt = 0.004 秒 4:每 LSB → 度 = (1 / 65.5 deg/s) × 0.004 s ≈ 0.0000611 度
-   //angle_pitch += (float)gyro_pitch * 0.0000611;                                    // 計算俯仰角度並累加到 angle_pitch 變數 
-   //angle_roll += (float)gyro_roll * 0.0000611;  
+   angle_pitch += (float)gyro_pitch * 0.0000611;                                    // 計算俯仰角度並累加到 angle_pitch 變數 
+   angle_roll += (float)gyro_roll * 0.0000611;  
     
 
 
   // 0.000001066 = 0.0000611 * (3.142(PI) / 180度) ，因為 Arduino 的 sin 函數以弧度為單位
-  //angle_pitch -= angle_roll * sin((float)gyro_yaw * 0.000001066);                  // 如果IMU有偏航，將滾轉角度轉移到俯仰角度(這是歐拉公式)
-  //angle_roll += angle_pitch * sin((float)gyro_yaw * 0.000001066);                  // 如果IMU有偏航，將俯仰角度轉移到滾轉角度(這是歐拉公式)
-  //if (isnan(angle_pitch) || isnan(angle_roll)) { ////////
-    //angle_pitch = 0;/////////////////////////
-    //angle_roll = 0;/////////////////////
-    //}
+  angle_pitch -= angle_roll * sin((float)gyro_yaw * 0.000001066);                  // 如果IMU有偏航，將滾轉角度轉移到俯仰角度(這是歐拉公式)
+  angle_roll += angle_pitch * sin((float)gyro_yaw * 0.000001066);                  // 如果IMU有偏航，將俯仰角度轉移到滾轉角度(這是歐拉公式)
+  if (isnan(angle_pitch) || isnan(angle_roll)) { ////////
+    angle_pitch = 0;/////////////////////////
+    angle_roll = 0;/////////////////////
+    }
 
-     angle_pitch=(float)gyro_pitch*1/65.5;
-     angle_roll=(float)gyro_roll*1/65.5;
+     //angle_pitch=(float)gyro_pitch*1/65.5;
+     //angle_roll=(float)gyro_roll*1/65.5;
 
   //Serial.print("angle_pitch: ");
  // Serial.println(angle_pitch);
@@ -292,13 +292,13 @@ void loop() {
     //Serial.print(AltitudeKalman);
     //Serial.print(" Vertical velocity [cm/s]: ");
     //Serial.println(VelocityVerticalKalman);
-  kalman_1d(KalmanAngleRoll, KalmanUncertaintyAngleRoll, angle_roll,angle_roll_acc);
-  KalmanAngleRoll=Kalman1DOutput[0]; KalmanUncertaintyAngleRoll=Kalman1DOutput[1];
-  kalman_1d(KalmanAnglePitch, KalmanUncertaintyAnglePitch, angle_pitch, angle_pitch_acc);
-  KalmanAnglePitch=Kalman1DOutput[0]; KalmanUncertaintyAnglePitch=Kalman1DOutput[1];
+  //kalman_1d(KalmanAngleRoll, KalmanUncertaintyAngleRoll, angle_roll,angle_roll_acc);
+  //KalmanAngleRoll=Kalman1DOutput[0]; KalmanUncertaintyAngleRoll=Kalman1DOutput[1];
+  //kalman_1d(KalmanAnglePitch, KalmanUncertaintyAnglePitch, angle_pitch, angle_pitch_acc);
+  //KalmanAnglePitch=Kalman1DOutput[0]; KalmanUncertaintyAnglePitch=Kalman1DOutput[1];
 
-   angle_pitch=KalmanAnglePitch;
-   angle_roll=KalmanAngleRoll;
+   //angle_pitch=KalmanAnglePitch;
+   //angle_roll=KalmanAngleRoll;
 
   //Serial.print(" KalmanAngleRoll: ");
   //Serial.println( KalmanAngleRoll);
@@ -307,23 +307,17 @@ void loop() {
 
  
   
-  angle_pitch= angle_pitch * 0.95 + angle_pitch_acc * 0.05;                    // 使用加速度計的俯仰角度修正陀螺儀俯仰角度(互補律波)
-  angle_roll = angle_roll * 0.95 + angle_roll_acc * 0.05;                       // 使用加速度計的滾轉角度修正陀螺儀滾轉角度
+  angle_pitch= angle_pitch * 0.9996 + angle_pitch_acc * 0.0004;                    // 使用加速度計的俯仰角度修正陀螺儀俯仰角度(互補律波)
+  angle_roll = angle_roll * 0.9996 + angle_roll_acc * 0.0004;                       // 使用加速度計的滾轉角度修正陀螺儀滾轉角度
   
     
 
-  angle_pitch -= angle_roll * sin((float)gyro_yaw * 0.000001066);                  // 如果IMU有偏航，將滾轉角度轉移到俯仰角度(使用歐拉公式)
-  angle_roll += angle_pitch * sin((float)gyro_yaw * 0.000001066);                  // 如果IMU有偏航，將俯仰角度轉移到滾轉角度(使用歐拉公式)
-  if (isnan(angle_pitch) || isnan(angle_roll)) { ////////
-   angle_pitch = 0;/////////////////////////
-    angle_roll = 0;/////////////////////
-     }
 
 
-  //pitch_level_adjust = KalmanAnglePitch* 15;                                           // 計算俯仰角修正(可以自己改係數)15
-  //roll_level_adjust = KalmanAngleRoll * 15;                                             // 計算滾轉角修正(可以自己改係數)15
-  pitch_level_adjust = angle_pitch* 15;                                           
-  roll_level_adjust = angle_roll *15 ;                          
+                                          
+                                             
+  pitch_level_adjust = angle_pitch* 15;      // 計算俯仰角修正(可以自己改係數)15                                      
+  roll_level_adjust = angle_roll *15 ;       // 計算滾轉角修正(可以自己改係數)15                   
     //Serial.print("angle_pitch: ");
     //Serial.println(angle_pitch);
     //delay(20);

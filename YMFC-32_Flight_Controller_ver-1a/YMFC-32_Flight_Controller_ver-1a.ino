@@ -1,4 +1,3 @@
-
 #include <Wire.h> 
 #include <BasicLinearAlgebra.h>
 TwoWire Wire2(2, I2C_FAST_MODE);//  自訂義WIRE 並保持I2C在快速模式下工作
@@ -46,13 +45,13 @@ float pid_accoutput_roll,pid_accoutput_pitch;
 float pid_p_gain_yaw = 1.3;               //2.0
 float pid_i_gain_yaw = 0.02;              
 float pid_d_gain_yaw = 0.0;               
-int pid_max_yaw = 90;                    //飽和抑制
+int pid_max_yaw = 100;                    //飽和抑制
 int pid_max_output_yaw=100;            //飽和抑制
 boolean auto_level = true;                  //自穩模式(這裡沒有設置手動模式)
 
 float accZ,AltitudeBarometerlast,AltitudeBarometerx;
-int16_t manual_acc_pitch_cal_value = 60;       //設定陀螺參數 如use_manual_calibration是false則無義義
-int16_t manual_acc_roll_cal_value = -189;
+int16_t manual_acc_pitch_cal_value ;       //設定陀螺參數 如use_manual_calibration是false則無義義
+int16_t manual_acc_roll_cal_value ;
 
 
 uint8_t use_manual_calibration = false;    
@@ -93,10 +92,10 @@ float pid_i_mem_roll, pid_roll_setpoint, gyro_roll_input, pid_output_roll, pid_l
 float pid_i_mem_pitch, pid_pitch_setpoint, gyro_pitch_input, pid_output_pitch, pid_last_pitch_d_error;
 float pid_i_mem_yaw, pid_yaw_setpoint, gyro_yaw_input, pid_output_yaw, pid_last_yaw_d_error;
 float angle_roll_acc, angle_pitch_acc, angle_pitch, angle_roll;
-float pid_i_mem_high,pid_output_high,DesiredVelocityVertical,VelocityVerticalKalman,pid_last_high_d_error;
+float pid_i_mem_high,pid_output_high,DesiredVelocityVertical,VelocityVerticalKalman,pid_last_high_d_error,KalmanGain;
 float battery_voltage;
 float  angle_pitch_accsin,angle_roll_accsin,angle_pitch_acctan,angle_roll_acctan;
-float angular_acceleration_estimate, predicted_gyro,predicted_error,total_error,gyro_pitch_last,gyro_yaw_last,KalmanGain;
+float angular_acceleration_estimate, predicted_gyro,predicted_error,total_error,gyro_pitch_last,gyro_yaw_last;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup routine
@@ -246,6 +245,8 @@ void loop() {
      //gyro_pitch=(float)gyro_pitch*1/65.5;
      //gyro_roll=(float)gyro_roll*1/65.5;
 
+
+
   //Serial.print("angle_pitch: ");
  // Serial.println(angle_pitch);
   //Serial.print("angle_roll: ");
@@ -266,8 +267,8 @@ void loop() {
    angle_pitch_acctan = -atan2((float)acc_x, sqrt(acc_y * acc_y + acc_z * acc_z)) * 57.296;
    angle_roll_acctan = atan2((float)acc_y, sqrt(acc_x * acc_x + acc_z * acc_z)) * 57.296;
    
-    float angle_pitch_acc = 0.7 * angle_pitch_accsin + 0.3 * angle_pitch_acctan;  // 比較信任 asin 的穩定性
-    float angle_roll_acc  = 0.7 * angle_roll_accsin  + 0.3 * angle_roll_acctan;
+    float angle_pitch_acc = 0.7* angle_pitch_accsin + 0.3 * angle_pitch_acctan;  // 比較信任 asin 的穩定性
+    float angle_roll_acc  = 0.7 * angle_roll_accsin + 0.3 * angle_roll_acctan;
 
 
    
@@ -275,13 +276,14 @@ void loop() {
     AccZInertial=(AccZInertial-accZ_offset)*9.81*100;
        //Serial.print("AccZInertial: ");
        //Serial.println(AccZInertial);
-
+        //Serial.print("manual_acc_pitch_cal_value: ");
+        //Serial.println(manual_acc_pitch_cal_value);
     
 
      barometer_signals();
 
     AltitudeBarometer-=AltitudeBarometerStartUp;
-     //Serial.print("AltitudeBarometer: ");
+     //Serial.print("AltitudeBarometer");
      //Serial.println(AltitudeBarometer);    
 
     kalman_2d();
@@ -290,10 +292,12 @@ void loop() {
     //Serial.print(" Vertical velocity [cm/s]: ");
     //Serial.println(VelocityVerticalKalman);
 
+
    //kalman_1d(KalmanUncertaintyAngle);
    //KalmanUncertaintyAngle=Kalman1DOutput[1];
 
-   
+
+ 
 
   //Serial.print(" KalmanAngleRoll: ");
   //Serial.println( KalmanAngleRoll);
@@ -302,17 +306,13 @@ void loop() {
 
  
   
+ 
   angle_pitch= angle_pitch * 0.9996 + angle_pitch_acc * 0.0004;                    // 使用加速度計的俯仰角度修正陀螺儀俯仰角度(互補律波)
   angle_roll = angle_roll * 0.9996 + angle_roll_acc * 0.0004;                       // 使用加速度計的滾轉角度修正陀螺儀滾轉角度
-  
-    
-
-
-
-                                          
-                                             
-  pitch_level_adjust = angle_pitch* 15;      // 計算俯仰角修正(可以自己改係數)15                                      
-  roll_level_adjust = angle_roll *15 ;       // 計算滾轉角修正(可以自己改係數)15                   
+               
+                                           
+  pitch_level_adjust = angle_pitch* 15;    // 計算俯仰角修正(可以自己改係數)15                                       
+  roll_level_adjust = angle_roll *15 ;     // 計算滾轉角修正(可以自己改係數)15                      
     //Serial.print("angle_pitch: ");
     //Serial.println(angle_pitch);
     //delay(20);
@@ -351,7 +351,7 @@ void loop() {
   
   if (start == 2 && channel_3 < 1055 && channel_4 > 1755) {
     start = 0; 
-    digitalWrite(PB3, HIGH);                                                                //停止
+    digitalWrite(PB3, HIGH);                                                                //停止 並開啟綠LED
 
   }
 
@@ -406,11 +406,12 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
 
 // 需要電池電壓來進行補償。
 // 使用補償濾波器來減少噪聲。
-  battery_voltage = battery_voltage * 0.92 + ((float)analogRead(4) / 1410.1);
+  //battery_voltage = battery_voltage * 0.92 + ((float)analogRead(4) / 1410.1);
+ battery_voltage = battery_voltage * 0.92 + ((float)analogRead(4) / 1410.1);
     
     
  // 如果電池電壓過低（例如低於 11.0V），則開啟 LED。
-  if (battery_voltage <= 10.5 && error == 0){
+  if (battery_voltage <= 11.0 && error == 0){
     error = 1;
      digitalWrite(PA8,HIGH);                         //當channel_6剛好等於2000則開啟前燈
   }
@@ -420,7 +421,7 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
   throttle = channel_3;                                                          //當作基準信號 (這是油門信號)channel_3
   if(channel_3 >= 1480 && channel_3 <= 1520){
 
-    throttle = 1450+pid_output_high/1.2;
+    throttle = 1450+pid_output_high/1.2;//1.8
     }
 
 
@@ -429,16 +430,16 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
 
     
 
-    esc_1 = 1.024*(throttle  + pid_output_pitch - pid_output_roll + pid_output_yaw-pid_accoutput_roll+pid_accoutput_pitch);         esc 1 (front-right - CCW).      這是ESC輸出的計算通用標準型式 =總-前後(往前是正往後是負)+橫滾(往右負往左正)-偏航(右旋負左旋正)
-    esc_2 = 1.024*(throttle  - pid_output_pitch - pid_output_roll - pid_output_yaw-pid_accoutput_roll-pid_accoutput_pitch);         esc 2 (rear-right - CW).                                    =總+前後(往前是正往後是負)+橫滾(往右負往左正)+偏航(右旋正左旋負)
-    esc_3 = 1.024*(throttle  - pid_output_pitch + pid_output_roll + pid_output_yaw+pid_accoutput_roll-pid_accoutput_pitch);         esc 3 (rear-left - CCW).                                    =總+前後(往前是正往後是負)-橫滾(往右負往左正)-偏航(右旋正左旋負)
-    esc_4 = 1.024*(throttle  + pid_output_pitch + pid_output_roll - pid_output_yaw+pid_accoutput_roll+pid_accoutput_pitch);         esc 4 (front-left - CW).                                    =總-前後(往前是正往後是負)-橫滾(往右負往左正)+偏航(右旋正左旋負)
+    esc_1 = 1.024*(throttle  + pid_output_pitch - pid_output_roll + pid_output_yaw-pid_accoutput_roll+pid_accoutput_pitch);        // 1.7 18esc 1 (front-right - CCW).      這是ESC輸出的計算通用標準型式 =總-前後(往前是正往後是負)+橫滾(往右負往左正)-偏航(右旋負左旋正)
+    esc_2 = 1.024*(throttle  - pid_output_pitch - pid_output_roll - pid_output_yaw-pid_accoutput_roll-pid_accoutput_pitch);        // 1.7 18esc 2 (rear-right - CW).                                    =總+前後(往前是正往後是負)+橫滾(往右負往左正)+偏航(右旋正左旋負)
+    esc_3 = 1.024*(throttle  - pid_output_pitch + pid_output_roll + pid_output_yaw+pid_accoutput_roll-pid_accoutput_pitch);        // 1.7 18esc 3 (rear-left - CCW).                                    =總+前後(往前是正往後是負)-橫滾(往右負往左正)-偏航(右旋正左旋負)
+    esc_4 = 1.024*(throttle  + pid_output_pitch + pid_output_roll - pid_output_yaw+pid_accoutput_roll+pid_accoutput_pitch);        // 1.7 18esc 4 (front-left - CW).                                    =總-前後(往前是正往後是負)-橫滾(往右負往左正)+偏航(右旋正左旋負)
     
 
-    if (esc_1 < 1120) esc_1 = 1100;                                               //保持馬達怠速1100
-    if (esc_2 < 1120) esc_2 = 1100;                                               
-    if (esc_3 < 1120) esc_3 = 1100;                                                
-    if (esc_4 < 1120) esc_4 = 1100;                                              
+    if (esc_1 < 1100) esc_1 = 1100;                                               //保持馬達怠速1100
+    if (esc_2 < 1100) esc_2 = 1100;                                               
+    if (esc_3 < 1100) esc_3 = 1100;                                                
+    if (esc_4 < 1100) esc_4 = 1100;                                              
 
     if (esc_1 > 2000)esc_1 = 2000;                                                 //禁止超過2000微秒
     if (esc_2 > 2000)esc_2 = 2000;                                                
@@ -458,7 +459,7 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
   TIMER4_BASE->CCR2 = esc_2;                                                       
   TIMER4_BASE->CCR3 = esc_3;                                                       
   TIMER4_BASE->CCR4 = esc_4;                                                       
-  TIMER4_BASE->CNT = 5000;                                                        
+  TIMER4_BASE->CNT = 5000;                                                     
 
  
 

@@ -96,7 +96,7 @@ float angle_roll_acc, angle_pitch_acc, angle_pitch, angle_roll;
 float pid_i_mem_high,pid_output_high,DesiredVelocityVertical,VelocityVerticalKalman,pid_last_high_d_error;
 float battery_voltage;
 float  angle_pitch_accsin,angle_roll_accsin,angle_pitch_acctan,angle_roll_acctan;
-float angular_acceleration_estimate, predicted_gyro,predicted_error,total_error,gyro_pitch_last,gyro_yaw_last;
+float angular_acceleration_estimate, predicted_gyro,predicted_error,total_error,gyro_pitch_last,gyro_yaw_last,KalmanGain;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Setup routine

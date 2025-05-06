@@ -34,10 +34,7 @@ float pid_i_gain_roll = 0.029;              // 0.028   /0.026 /0.029 0.0314 0.29
 float pid_d_gain_roll = 11.88 ;              // 12.1 /11.88/11.95
 int pid_max_roll = 110;                       //飽和抑制250 210
 int pid_max_output_roll=110 ;                 //飽和抑制250
-float KalmanAngleRoll=0,
-KalmanUncertaintyAngleRoll=2*2;//2*2
-float KalmanAnglePitch=0,
-KalmanUncertaintyAnglePitch=2*2;
+float KalmanUncertaintyAngle=2*2;
 float Kalman1DOutput[] ={0,0};
 float pid_p_gain_pitch = pid_p_gain_roll;  
 float pid_i_gain_pitch = pid_i_gain_roll;  
@@ -246,8 +243,8 @@ void loop() {
     angle_roll = 0;/////////////////////
     }
 
-     //angle_pitch=(float)gyro_pitch*1/65.5;
-     //angle_roll=(float)gyro_roll*1/65.5;
+     //gyro_pitch=(float)gyro_pitch*1/65.5;
+     //gyro_roll=(float)gyro_roll*1/65.5;
 
   //Serial.print("angle_pitch: ");
  // Serial.println(angle_pitch);
@@ -292,13 +289,11 @@ void loop() {
     //Serial.print(AltitudeKalman);
     //Serial.print(" Vertical velocity [cm/s]: ");
     //Serial.println(VelocityVerticalKalman);
-  //kalman_1d(KalmanAngleRoll, KalmanUncertaintyAngleRoll, angle_roll,angle_roll_acc);
-  //KalmanAngleRoll=Kalman1DOutput[0]; KalmanUncertaintyAngleRoll=Kalman1DOutput[1];
-  //kalman_1d(KalmanAnglePitch, KalmanUncertaintyAnglePitch, angle_pitch, angle_pitch_acc);
-  //KalmanAnglePitch=Kalman1DOutput[0]; KalmanUncertaintyAnglePitch=Kalman1DOutput[1];
 
-   //angle_pitch=KalmanAnglePitch;
-   //angle_roll=KalmanAngleRoll;
+   //kalman_1d(KalmanUncertaintyAngle);
+   //KalmanUncertaintyAngle=Kalman1DOutput[1];
+
+   
 
   //Serial.print(" KalmanAngleRoll: ");
   //Serial.println( KalmanAngleRoll);

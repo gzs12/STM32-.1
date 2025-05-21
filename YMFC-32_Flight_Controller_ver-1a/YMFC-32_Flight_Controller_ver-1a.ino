@@ -413,11 +413,9 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
  // 如果電池電壓過低（例如低於 11.0V），則開啟 LED。
   if (battery_voltage <= 11.0 && error == 0){
     error = 1;
-     digitalWrite(PA8,HIGH);                         //當channel_6剛好等於2000則開啟前燈
+    
   }
-  else{
-    digitalWrite(PA8,LOW);
-}
+ 
   throttle = channel_3;                                                          //當作基準信號 (這是油門信號)channel_3
   if(channel_3 >= 1480 && channel_3 <= 1520){
 

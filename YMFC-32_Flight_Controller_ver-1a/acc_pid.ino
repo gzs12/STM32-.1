@@ -1,5 +1,5 @@
 void acc_pid(void){
- pid_accerror_temp_roll = manual_acc_roll_cal_value - acc_xLSB;
+ pid_accerror_temp_roll =0  - acc_xLSB;
 
  pid_i_accmem_roll += pid_i_gain_roll * pid_accerror_temp_roll;            //PID基本離散化運算公式  (誤差=目標角速度（搖桿+修正）−當前角速度（gyro）rad/s)
   if(pid_i_accmem_roll > pid_max_roll)pid_i_accmem_roll = pid_max_roll;    //飽和抑制                                  P=P參數*誤差
@@ -11,7 +11,7 @@ void acc_pid(void){
    pid_last_accroll_d_error = pid_accerror_temp_roll;
 
 
- pid_accerror_temp_pitch = manual_acc_pitch_cal_value - acc_yLSB;
+ pid_accerror_temp_pitch = 0 - acc_yLSB;
 
  pid_i_accmem_pitch += pid_i_gain_pitch * pid_accerror_temp_pitch;            //PID基本離散化運算公式  (誤差=目標角速度（搖桿+修正）−當前角速度（gyro）rad/s)
   if(pid_i_accmem_pitch > pid_max_pitch)pid_i_accmem_pitch = pid_max_pitch;    //飽和抑制                                  P=P參數*誤差

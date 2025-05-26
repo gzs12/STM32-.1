@@ -74,7 +74,7 @@ int16_t temperature, count_var;
 int16_t acc_yLSB,acc_xLSB,acc_zLSB;
 float acc_x, acc_y, acc_z;
 int16_t gyro_pitch, gyro_roll, gyro_yaw;
-
+float pid_d_last_roll,pid_d_roll,pid_d_pitch,pid_d_last_pitch,pid_d_yaw,pid_d_last_yaw;
 
 int32_t channel_1_start, channel_1;
 int32_t channel_2_start, channel_2;
@@ -419,7 +419,7 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
   throttle = channel_3;                                                          //當作基準信號 (這是油門信號)channel_3
   if(channel_3 >= 1480 && channel_3 <= 1520){
 
-    throttle = 1450+pid_output_high/1.2;//1.8
+    throttle = 1450+pid_output_high/2;//1.8
     }
 
 
@@ -428,10 +428,10 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
 
     
 
-    esc_1 = 1.024*(throttle  + pid_output_pitch - pid_output_roll + pid_output_yaw-pid_accoutput_roll+pid_accoutput_pitch);        // 1.7 18esc 1 (front-right - CCW).      這是ESC輸出的計算通用標準型式 =總-前後(往前是正往後是負)+橫滾(往右負往左正)-偏航(右旋負左旋正)
-    esc_2 = 1.024*(throttle  - pid_output_pitch - pid_output_roll - pid_output_yaw-pid_accoutput_roll-pid_accoutput_pitch);        // 1.7 18esc 2 (rear-right - CW).                                    =總+前後(往前是正往後是負)+橫滾(往右負往左正)+偏航(右旋正左旋負)
-    esc_3 = 1.024*(throttle  - pid_output_pitch + pid_output_roll + pid_output_yaw+pid_accoutput_roll-pid_accoutput_pitch);        // 1.7 18esc 3 (rear-left - CCW).                                    =總+前後(往前是正往後是負)-橫滾(往右負往左正)-偏航(右旋正左旋負)
-    esc_4 = 1.024*(throttle  + pid_output_pitch + pid_output_roll - pid_output_yaw+pid_accoutput_roll+pid_accoutput_pitch);        // 1.7 18esc 4 (front-left - CW).                                    =總-前後(往前是正往後是負)-橫滾(往右負往左正)+偏航(右旋正左旋負)
+    esc_1 = throttle  + pid_output_pitch - pid_output_roll + pid_output_yaw-pid_accoutput_roll+pid_accoutput_pitch;        //  esc 1 (front-right - CCW).      這是ESC輸出的計算通用標準型式 =總-前後(往前是正往後是負)+橫滾(往右負往左正)-偏航(右旋負左旋正)
+    esc_2 = throttle  - pid_output_pitch - pid_output_roll - pid_output_yaw-pid_accoutput_roll-pid_accoutput_pitch;        //  esc 2 (rear-right - CW).                                    =總+前後(往前是正往後是負)+橫滾(往右負往左正)+偏航(右旋正左旋負)
+    esc_3 = throttle  - pid_output_pitch + pid_output_roll + pid_output_yaw+pid_accoutput_roll-pid_accoutput_pitch;        //  esc 3 (rear-left - CCW).                                    =總+前後(往前是正往後是負)-橫滾(往右負往左正)-偏航(右旋正左旋負)
+    esc_4 = throttle  + pid_output_pitch + pid_output_roll - pid_output_yaw+pid_accoutput_roll+pid_accoutput_pitch;        //  esc 4 (front-left - CW).                                    =總-前後(往前是正往後是負)-橫滾(往右負往左正)+偏航(右旋正左旋負)
     
 
     if (esc_1 < 1100) esc_1 = 1100;                                               //保持馬達怠速1100

@@ -38,34 +38,36 @@ float min_i = 0.023, max_i = 0.031;
 }
 
 
-  angular_acceleration_estimate = (gyro_roll_input - gyro_roll_last)/0.004 ;
+  angular_acceleration_estimate = (gyro_roll_input - gyro_roll_last) ;
 
   pid_error_temp = pid_roll_setpoint - gyro_roll_input;
-  predicted_gyro = gyro_roll_input + angular_acceleration_estimate*0.004 ;  // 一階預測
+  predicted_gyro = gyro_roll_input + angular_acceleration_estimate ;  // 一階預測
   predicted_error = pid_roll_setpoint - predicted_gyro;
-  total_error = pid_error_temp *0.8+ predicted_error*0.2; //0.6/0.4
+  total_error = pid_error_temp *0.5+ predicted_error*0.5; //0.6/0.4
   pid_error_temp=total_error;
 
   pid_i_mem_roll += pid_i_gain_roll * pid_error_temp;            //PID基本離散化運算公式  (誤差=目標角速度（搖桿+修正）−當前角速度（gyro）rad/s)
   if(pid_i_mem_roll > pid_max_roll)pid_i_mem_roll = pid_max_roll;    //飽和抑制                                  P=P參數*誤差
   else if(pid_i_mem_roll < -pid_max_roll )pid_i_mem_roll = -pid_max_roll;//飽和抑制                         I=I+(I參數)*誤差
                                                                                                           // D=D參數*(誤差-上一個誤差)
-  pid_output_roll = pid_p_gain_roll * pid_error_temp + pid_i_mem_roll + pid_d_gain_roll * (pid_error_temp - pid_last_roll_d_error);
+  pid_d_roll=pid_d_gain_roll * (pid_error_temp - pid_last_roll_d_error);
+  pid_output_roll = pid_p_gain_roll * pid_error_temp + pid_i_mem_roll +  (pid_d_roll*0.167+pid_d_last_roll*0.833);   //pid_d_gain_roll * (pid_error_temp - pid_last_roll_d_error);
   if(pid_output_roll > pid_max_output_roll)pid_output_roll = pid_max_output_roll;  //飽和抑制
   else if(pid_output_roll < -pid_max_output_roll )pid_output_roll = -pid_max_output_roll ;  //飽和抑制
    gyro_roll_last = gyro_roll_input;
   pid_last_roll_d_error = pid_error_temp;
+  pid_d_last_roll=pid_d_roll;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////(1)
   //Pitch calculations
   
 
 
-  angular_acceleration_estimate = (gyro_pitch_input - gyro_pitch_last)/0.004 ;
+  angular_acceleration_estimate = (gyro_pitch_input - gyro_pitch_last) ;
 
   pid_error_temp =  pid_pitch_setpoint - gyro_pitch_input ;
-  predicted_gyro = gyro_pitch_input + angular_acceleration_estimate*0.004 ;  // 一階預測
+  predicted_gyro = gyro_pitch_input + angular_acceleration_estimate ;  // 一階預測
   predicted_error = pid_pitch_setpoint - predicted_gyro;
-  total_error = pid_error_temp *0.8+ predicted_error*0.2; 
+  total_error = pid_error_temp *0.5+ predicted_error*0.5; 
   pid_error_temp=total_error;
 
 
@@ -73,22 +75,24 @@ float min_i = 0.023, max_i = 0.031;
   if(pid_i_mem_pitch > pid_max_pitch)pid_i_mem_pitch = pid_max_pitch;//飽和抑制
   else if(pid_i_mem_pitch < -pid_max_pitch)pid_i_mem_pitch = -pid_max_pitch ;//飽和抑制
 
-  pid_output_pitch = pid_p_gain_pitch * pid_error_temp + pid_i_mem_pitch + pid_d_gain_pitch * (pid_error_temp - pid_last_pitch_d_error);
+  pid_d_pitch=pid_d_gain_pitch * (pid_error_temp - pid_last_pitch_d_error);
+  pid_output_pitch = pid_p_gain_pitch * pid_error_temp + pid_i_mem_pitch +(pid_d_pitch*0.167+pid_d_last_pitch*0.833);     // pid_d_gain_pitch * (pid_error_temp - pid_last_pitch_d_error);
   if(pid_output_pitch > pid_max_output_pitch)pid_output_pitch = pid_max_output_pitch;//飽和抑制
   else if(pid_output_pitch < -pid_max_output_pitch )pid_output_pitch = -pid_max_output_pitch ;//飽和抑制
    gyro_pitch_last = gyro_pitch_input;
   pid_last_pitch_d_error = pid_error_temp;
+   pid_d_last_pitch=pid_d_pitch;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////(2)
   //Yaw calculations
 
 
 
-angular_acceleration_estimate = (gyro_yaw_input - gyro_yaw_last)/0.004 ;
+angular_acceleration_estimate = (gyro_yaw_input - gyro_yaw_last) ;
 
   pid_error_temp = pid_yaw_setpoint - gyro_yaw_input;
-  predicted_gyro = gyro_yaw_input + angular_acceleration_estimate*0.004 ;  // 一階預測
+  predicted_gyro = gyro_yaw_input + angular_acceleration_estimate ;  // 一階預測
   predicted_error = pid_yaw_setpoint - predicted_gyro;
-  total_error = pid_error_temp *0.6+ predicted_error*0.4; 
+  total_error = pid_error_temp *0.5+ predicted_error*0.5; 
   pid_error_temp=total_error;
 
 
@@ -97,15 +101,17 @@ angular_acceleration_estimate = (gyro_yaw_input - gyro_yaw_last)/0.004 ;
   if(pid_i_mem_yaw > pid_max_yaw)pid_i_mem_yaw = pid_max_yaw;//飽和抑制
   else if(pid_i_mem_yaw < -pid_max_yaw )pid_i_mem_yaw = -pid_max_yaw ;//飽和抑制
 
-  pid_output_yaw = pid_p_gain_yaw * pid_error_temp + pid_i_mem_yaw + pid_d_gain_yaw * (pid_error_temp - pid_last_yaw_d_error);
+  pid_d_yaw=pid_d_gain_yaw * (pid_error_temp - pid_last_yaw_d_error);
+  pid_output_yaw = pid_p_gain_yaw * pid_error_temp + pid_i_mem_yaw +(pid_d_yaw*0.167+pid_d_last_yaw*0.833); //pid_d_gain_yaw * (pid_error_temp - pid_last_yaw_d_error);
   if(pid_output_yaw > pid_max_output_yaw)pid_output_yaw = pid_max_output_yaw;//飽和抑制
   else if(pid_output_yaw < -pid_max_output_yaw)pid_output_yaw = -pid_max_output_yaw ;//飽和抑制
    gyro_yaw_last = gyro_yaw_input;
   pid_last_yaw_d_error = pid_error_temp;
-
+  pid_d_last_yaw=pid_d_yaw;
  
 
     
+    //pid_error_temp=DesiredVelocityVertical-VelocityVerticalKalman;
     pid_error_temp=DesiredVelocityVertical-VelocityVerticalKalman;
     pid_i_mem_high+=pid_i_gain_high* pid_error_temp;
     if(pid_i_mem_high > pid_max_high)pid_i_mem_high = pid_max_high;//飽和抑制
@@ -127,4 +133,3 @@ angular_acceleration_estimate = (gyro_yaw_input - gyro_yaw_last)/0.004 ;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////(3)
 }
-

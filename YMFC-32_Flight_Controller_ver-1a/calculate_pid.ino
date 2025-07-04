@@ -4,23 +4,23 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void calculate_pid(void){
   //Roll calculations
-  if(12.6>=battery_voltage>=10.9){                     //增益調度pid
-  pid_p_gain_roll = 0.825-(12.6-battery_voltage)/10;
-  pid_p_gain_pitch = 0.825-(12.6-battery_voltage)/10;
+  if(8.2>=battery_voltage>=7.0){                     //增益調度pid
+  pid_p_gain_roll = 0.7-(12.6-battery_voltage)/10;
+  pid_p_gain_pitch = 0.7-(12.6-battery_voltage)/10;
   pid_i_gain_roll = 0.029+(12.6-battery_voltage)/450;//450
   pid_i_gain_pitch = 0.029+(12.6-battery_voltage)/450;//450
-  pid_d_gain_roll =11.88-(12.6-battery_voltage)/4.73;
-  pid_d_gain_pitch =11.88-(12.6-battery_voltage)/4.73;
+  pid_d_gain_roll =10.6-(12.6-battery_voltage)/4.73;
+  pid_d_gain_pitch =10.6-(12.6-battery_voltage)/4.73;
   }
  else{
- pid_p_gain_roll=0.825;
- pid_p_gain_pitch=0.825;
+ pid_p_gain_roll=0.7;
+ pid_p_gain_pitch=0.7;
  pid_i_gain_roll=0.029;
  pid_i_gain_pitch=0.029;
- pid_d_gain_roll = 11.88;
- pid_d_gain_pitch = 11.88;
+ pid_d_gain_roll = 10.6;
+ pid_d_gain_pitch = 10.6;
  }
- float min_p = 0.69, max_p = 0.84;                //自適應pid
+ float min_p = 0.63, max_p = 0.81;                //自適應pid
 float min_i = 0.023, max_i = 0.031;
  if ((angle_pitch <= -40 || angle_pitch >= 40) || (angle_roll  <= -40 || angle_roll  >= 40)) {
     pid_p_gain_roll  *= 0.96;

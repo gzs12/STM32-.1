@@ -28,9 +28,9 @@ int pid_max_high = 210;
 
 
 
-float pid_p_gain_roll = 0.825;               //  恆滾 俯仰 偏航 PID參數 0.8/0.725/0.825
+float pid_p_gain_roll = 0.7;               //  恆滾 俯仰 偏航 PID參數 0.8/0.725/0.825
 float pid_i_gain_roll = 0.029;              // 0.028   /0.026 /0.029 0.0314 0.295
-float pid_d_gain_roll = 11.88 ;              // 12.1 /11.88/11.95
+float pid_d_gain_roll = 10.6 ;              // 12.1 /11.88/11.95
 int pid_max_roll = 110;                       //飽和抑制250 210
 int pid_max_output_roll=110 ;                 //飽和抑制250
 float KalmanUncertaintyAngle=2*2;
@@ -202,22 +202,22 @@ void loop() {
   if (channel_5 >=995 && channel_5 <=1005) {      //當channel_5的值剛好等於1500則強制停下無人機
     start=0;
    }
-   if ( channel_5 >= 1995  &&  channel_5 <= 2005) {      
-    digitalWrite(PB12,HIGH);
-   }
-   else{
-    digitalWrite(PB12,LOW);}
-  if(channel_6>=1995 && channel_6<=2005){           
-    digitalWrite(PA8,HIGH);                         //當channel_6剛好等於2000則開啟前燈
-  }
-  else{
-    digitalWrite(PA8,LOW);}
-  if(channel_6>=995 && channel_6<=1010){           //當channel_6剛好等於1000則開啟尾燈
-    digitalWrite(PA9,HIGH);
-  }
-   else{
-    digitalWrite(PA9,LOW);
-   }
+   //if ( channel_5 >= 1995  &&  channel_5 <= 2005) {      
+    //digitalWrite(PB12,HIGH);
+   //}
+   //else{
+   // digitalWrite(PB12,LOW);}
+  //if(channel_6>=1995 && channel_6<=2005){           
+   // digitalWrite(PA8,HIGH);                         //當channel_6剛好等於2000則開啟前燈
+  //}
+  //else{
+    //digitalWrite(PA8,LOW);}
+  //if(channel_6>=995 && channel_6<=1010){           //當channel_6剛好等於1000則開啟尾燈
+    //digitalWrite(PA9,HIGH);
+  //}
+   //else{
+   // digitalWrite(PA9,LOW);
+   //}
 
    
 
@@ -411,7 +411,7 @@ if(channel_1 < 1508&&channel_1 > 1492&&channel_2 < 1508&&channel_2 > 1492){
     
     
  // 如果電池電壓過低（例如低於 11.0V），則開啟 LED。
-  if (battery_voltage <= 11.0 && error == 0){
+  if (battery_voltage <= 7.4 && error == 0){
     error = 1;
     
   }
